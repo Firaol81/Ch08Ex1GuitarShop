@@ -1,4 +1,5 @@
-﻿@model List<Product>
+﻿@model ProductListViewModel
+
 @{
     ViewBag.Title = "Product Manager";
 }
@@ -9,17 +10,22 @@
         <ul class="list-group">
             <a asp-action="List" asp-route-id="All"
                class="list-group-item
-                @if (ViewBag.SelectedCategoryName == "All") {
-                    <text>active</text>
+
+               @if (Model.SelectedCategory == "All") {
+                 <text>active</text>
+                }
+
                 } ">All</a>
-            @foreach (Category c in ViewBag.Categories)
+            @foreach (Category c in Model.Categories)
             {
                 <a asp-action="List" asp-route-id="@c.Name"
                    class="list-group-item
-                         @(ViewBag.SelectedCategoryName == c.Name ? "active" : "")">
+             @(Model.CheckActiveCategory(c.Name))">
                     @c.Name
                 </a>
             }
+
+
         </ul>
     </div>
 
@@ -33,23 +39,31 @@
                     <th></th>
             </thead>
             <tbody>
-                @foreach (var p in Model)
+                @foreach (var p in Model.Products)
                 {
                     <tr>
                         <td>@p.Name</td>
                         <td>@p.Price.ToString("C")</td>
                         <td>
-                            <a asp-action="Update"
-                               asp-route-id="@p.ProductID">Update</a>
+                            <a asp-action="Update" asp-route-id="@p.ProductID">Update</a>
                         </td>
                         <td>
-                            <a asp-action="Delete"
-                               asp-route-id="@p.ProductID">Delete</a>
+                            <a asp-action="Delete" asp-route-id="@p.ProductID">Delete</a>
                         </td>
                     </tr>
                 }
+
             </tbody>
         </table>
+        @{
+            string userMessage = TempData?["userMessage"]?.ToString() ?? "";
+        }
+
+        @if (userMessage != "")
+        {
+            <div class="text-success">@userMessage</div>
+        }
+
         <a asp-action="Add" class="btn btn-primary">Add New Product</a>
     </div>
 </div>

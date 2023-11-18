@@ -26,36 +26,38 @@ namespace GuitarShop.Areas.Admin.Controllers
         }
 
         [Route("[area]/[controller]s/{id?}")]
-        public IActionResult List(string id = "All")
+        public IActionResult Update(Product product)
         {
-            List<Product> products;
-            if (id == "All")
+            if (ModelState.IsValid)
             {
-                products = context.Products
-                    .OrderBy(p => p.ProductID).ToList();
+                if (product.ProductID == 0) // New product
+                {
+                    context.Products.Add(product);
+                    context.SaveChanges();
+
+                    TempData["userMessage"] = $"You just added the product {product.Name}";
+
+                }
+                else // Existing product
+                {
+                    // Update logic here...
+                    context.Products.Update(product);
+                    context.SaveChanges();
+
+                    TempData["userMessage"] = $"You just updated the product {product.Name}";
+
+                }
+
+                return RedirectToAction("List");
             }
-            else
+            else // Invalid ModelState
             {
-                products = context.Products
-                    .Where(p => p.Category.Name == id)
-                    .OrderBy(p => p.ProductID).ToList();
+                ViewBag.Action = "Save";
+                ViewBag.Categories = categories;
+                return View("AddUpdate", product);
             }
-
-            // Fetch categories from the database
-            var categories = context.Categories.OrderBy(c => c.CategoryID).ToList();
-
-            // Create a new instance of ProductListViewModel
-            var productListViewModel = new ProductListViewModel
-            {
-                Categories = categories,
-                Products = products,
-                SelectedCategory = id
-            };
-
-            // Pass the model to the view
-            return View(productListViewModel);
         }
-    }
+
 
         [HttpGet]
         public IActionResult Add()
@@ -73,7 +75,7 @@ namespace GuitarShop.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Update(int id)
+        public IActionResult Edit(int id)
         {
             // get Product object for specified primary key
             Product product = context.Products
@@ -89,28 +91,36 @@ namespace GuitarShop.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Update(Product product)
+        public IActionResult Edit(Product product)
         {
             if (ModelState.IsValid)
             {
-                if (product.ProductID == 0)           // new product
+                if (product.ProductID == 0) // New product
                 {
                     context.Products.Add(product);
+                    context.SaveChanges();
+
+                    TempData["userMessage"] = $"You just added the product {product.Name}";
                 }
-                else                                  // existing product
+                else // Existing product
                 {
+                    // Update logic here...
                     context.Products.Update(product);
+                    context.SaveChanges();
+
+                    TempData["userMessage"] = $"You just updated the product {product.Name}";
                 }
-                context.SaveChanges();
+
                 return RedirectToAction("List");
             }
-            else
+            else // Invalid ModelState
             {
                 ViewBag.Action = "Save";
                 ViewBag.Categories = categories;
                 return View("AddUpdate", product);
             }
         }
+
 
         [HttpGet]
         public IActionResult Delete(int id)
