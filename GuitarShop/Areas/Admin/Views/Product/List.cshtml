@@ -56,10 +56,10 @@
             </tbody>
         </table>
         @{
-            string userMessage = TempData?["userMessage"]?.ToString() ?? "";
+            string userMessage = TempData?["UserMessage"]?.ToString() ?? "";
         }
 
-        @if (userMessage != "")
+        @if (userMessage != "") {
         {
             <div class="text-success">@userMessage</div>
         }
